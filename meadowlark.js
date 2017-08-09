@@ -1,4 +1,5 @@
 var express = require('express');
+var fortune = require('./lib/fortune');
 
 var app = express();
 
@@ -15,14 +16,6 @@ app.set('port', process.env.PORT || 3000);
 // 其中的资源不经过任何 特殊处理直接发送到客户端。你可以在其中放图片、CSS 文件、客户端 JavaScript 文件之 类的资源。
 app.use(express.static(__dirname + '/public'));
 
-var fortunes = [
-    "Conquer your fears or they will conquer you.",
-    "Rivers need springs.",
-    "Do not fear what you don't know.",
-    "You will have a pleasant surprise.",
-    "Whenever possible, keep it simple.",
-];
-
 app.get('/', function(req, res) { 
     // res.type('text/plain');
     // res.send('Meadowlark Travel');
@@ -30,9 +23,8 @@ app.get('/', function(req, res) {
 });
 
 app.get('/about', function(req, res) {
-    var randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
     // 不再指定内容类型和状态码, 因为视图引擎默认会返回 text/html 的内容类型和 200 的状态码。
-    res.render('about', { fortune: randomFortune});
+    res.render('about', { fortune: fortune.getFortune() });
 });
 
 //定制404页面
