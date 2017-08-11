@@ -1,5 +1,7 @@
 var express = require('express');
 var fortune = require('./lib/fortune');
+var formidable = require('formidable');
+var jqupload = require('jquery-file-upload-middleware');
 
 var app = express();
 
@@ -28,6 +30,8 @@ app.set('port', process.env.PORT || 3000);
 // static 中间件可以将一个或多个目录指派为包含静态资源的目录，
 // 其中的资源不经过任何 特殊处理直接发送到客户端。你可以在其中放图片、CSS 文件、客户端 JavaScript 文件之 类的资源。
 app.use(express.static(__dirname + '/public'));
+
+app.use(require('body-parser')())
 
 // mock weather data
 function getWeatherData() {
@@ -91,6 +95,72 @@ app.get('/about', function(req, res) {
 app.get('/jquery-test', function(req, res){
 	res.render('jquery-test');
 });
+
+app.get('/nursery-rhyme', function(req, res){
+	res.render('nursery-rhyme');
+});
+
+app.get('/data/nursery-rhyme', function(req, res){
+	res.json({
+		animal: 'squirrel',
+		bodyPart: 'tail',
+		adjective: 'bushy',
+		noun: 'heck',
+	});
+});
+
+app.get('/newsletter', function(req, res){
+    // 我们会在后面学到 CSRF......目前，只提供一个虚拟值 
+    res.render('newsletter', { csrf: 'CSRF token goes here' });
+});
+
+app.post('/process', function(req, res){
+    // Express 提供了两个方便的属性:req.xhr 和 req.accepts。
+    // 如果是 AJAX 请求(XHR 是 XML HTTP请求的简称，AJAX依赖于XHR)，req.xhr值为true
+    // req.accepts试图确 定返回的最合适的响应类型
+    if(req.xhr || req.accepted('json,html') === 'json') {
+        res.send({ success: true });
+    } else {
+        res.redirect(303, '/thank-you');
+    }
+});
+
+app.get('/thank-you', function(req, res){
+	res.render('thank-you');
+});
+
+app.get('/contest/vacation-photo', function(req,res) {
+    var now = new Date();
+    res.render('contest/vacation-photo', {
+        year: now.getFullYear(),month: now.getMonth()
+    });
+});
+
+app.post('/contest/vacation-photo/:year/:month', function(req, res) {
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+        if(err) return res.redirect(303, '/error');
+        console.log('received fields:');
+        console.log(fields);
+        console.log('received files:');
+        console.log(files);
+        res.redirect(303, '/thank-you');
+    });
+});
+
+// 简单的方法是创建一个时间戳目录来存储文件。更实际的做法是使用用户 ID 或其他唯一 ID 来创建子目录
+app.use('/upload', function(req, res, next) {
+    var now = Date.now();
+    jqupload.fileHandler({
+        uploadDir: function() {
+            return __dirname + '/public/uploads/' + now;
+        },
+        uploadUrl: function() {
+            return '/uploads/' + now;
+        },
+    })(req, res, next);
+});
+
 
 //定制404页面
 app.use(function(req, res) {
