@@ -3,10 +3,23 @@
 <head>
     <title>Meadowlark Travel</title>
     {{{_sections.head}}}
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap-theme.min.css">
+
+    <script src="/vendor/js/modernizr-2.6.2-respond-1.1.0.min.js"></script>
 </head>
 <body>
     <header><img src="/img/logo.png" alt="Meadowlark Travel Logo"></header>
     <div class="container">
+        {{#if flash}}
+            <div class="alert alert-dismissible alert-{{flash.type}}">
+                <button type="button" class="close" 
+                    data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong>{{flash.intro}}</strong> {{{flash.message}}}
+            </div>
+        {{/if}}
+        
         {{{body}}}
         <hr>
     </div> <!-- /container --> 
@@ -14,5 +27,6 @@
    
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>
     {{{_sections.jquery}}}
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
